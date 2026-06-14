@@ -1,6 +1,6 @@
 # 白糖日报生成系统
 
-每个工作日自动生成标准化的白糖期货日报草稿，供研究员审阅后发布。
+每个工作日自动生成标准化的白糖期货日报草稿，并自动推送到网站。
 
 ## 快速开始
 
@@ -52,10 +52,34 @@ python scripts/run_daily.py
 
 浏览器打开：http://localhost:8000
 
-## 推送 GitHub
+## 全自动流程
+
+每天 05:40 定时任务自动执行以下全部步骤，无需人工干预：
+
+```
+05:40  定时任务触发
+  → 抓取行情和基本面数据
+  → 调用 DeepSeek 生成日报
+  → 保存日报 Markdown
+  → 生成前端 JSON
+  → git add + commit + push
+  → Vercel 自动部署
+  → 网页更新完成
+```
+
+**你只需要：** 每天早上打开网站查看日报。
+
+**前提条件：** 电脑必须在 05:40 处于开机状态（睡眠可唤醒，关机不执行）。
+
+## 手动推送（备用）
+
+如果自动推送失败，可手动执行：
 
 ```powershell
-PowerShell -ExecutionPolicy Bypass -File scripts\Publish-Web.ps1
+cd ~/codingtest/sugar-daily
+git add public/data
+git commit -m "Update report"
+git push
 ```
 
 ## Vercel 部署

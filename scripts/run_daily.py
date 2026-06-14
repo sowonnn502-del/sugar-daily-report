@@ -1829,6 +1829,27 @@ def run(target_date: str | None = None) -> Path | None:
     except Exception as e:
         logger.warning("前端JSON更新失败（不影响日报生成）: %s", e)
 
+    # ── 自动推送到 GitHub（触发 Vercel 部署）──
+    try:
+        import subprocess
+        os.chdir(str(PROJECT_ROOT))
+        # 检查是否有变化
+        status = subprocess.run(["git", "status", "--porcelain", "public/data"],
+                                capture_output=True, text=True, timeout=10)
+        if status.stdout.strip():
+            subprocess.run(["git", "add", "public/data"], timeout=10)
+            commit_msg = f"Update sugar daily report {target_date}"
+            subprocess.run(["git", "commit", "-m", commit_msg], timeout=10)
+            push_result = subprocess.run(["git", "push"], capture_output=True, text=True, timeout=30)
+            if push_result.returncode == 0:
+                logger.info("已推送到 GitHub: %s", commit_msg)
+            else:
+                logger.warning("git push 失败（不影响日报生成）: %s", push_result.stderr[:200])
+        else:
+            logger.info("前端JSON无变化，跳过推送")
+    except Exception as e:
+        logger.warning("自动推送失败（不影响日报生成）: %s", e)
+
     return out_path
 
 
