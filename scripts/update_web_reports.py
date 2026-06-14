@@ -159,7 +159,7 @@ def build_index(all_reports: list[dict]):
                 "date": r["date"],
                 "title": r["short_title"],
                 "preview": r["preview"],
-                "file": f"data/reports/{r['date']}.json",
+                "file": f"/public/data/reports/{r['date']}.json",
             }
             for r in all_reports
         ],
